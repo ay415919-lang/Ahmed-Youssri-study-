@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>📚 Ahmed Yousry Study</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <link rel="stylesheet" href="css/base.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="css/ofoq.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="css/studio.css">
+</head>
+<body>
+<div class="login-overlay" id="login-overlay">
+    <div class="login-box" id="login-form-box">
+        <div class="mascot-stage">
+            <div class="mascot" id="login-mascot">
+                <div class="m-cap"></div>
+                <div class="m-head"><div class="m-eye left"></div><div class="m-eye right"></div></div>
+                <div class="m-body"><div class="m-arm left"></div><div class="m-arm right"></div><div class="m-book"></div></div>
+                <div class="m-leg left"></div><div class="m-leg right"></div>
+            </div>
+        </div>
+        <div class="login-fields">
+            <div class="login-title">Login</div>
+            <div class="login-sub">Ahmed Yousry Study</div>
+            <input class="login-input" id="login-phone" type="tel" placeholder="رقم الهاتف" required inputmode="numeric">
+            <input class="login-input" id="login-password" type="password" placeholder="كلمة السر" required>
+            <div class="login-error" id="login-error"></div>
+            <button class="login-btn" onclick="Auth.login()">Login</button>
+            <div style="text-align:center;margin-top:14px;">
+                <button type="button" aria-label="البصمة" onclick="BioFlow.start()" class="fp-pad"><svg viewBox="0 0 100 100" width="54" height="54" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M50 12c-20 0-34 15-34 34v8"/><path d="M50 22c-14 0-24 11-24 24 0 10-2 18-6 26"/><path d="M50 32c-8 0-14 6-14 14 0 14-3 26-9 38"/><path d="M50 42c-3 0-5 2-5 5 0 16-3 30-10 42"/><path d="M50 12c20 0 34 15 34 34 0 8-1 14-3 20"/><path d="M50 22c14 0 24 11 24 24 0 8-1 16-4 24"/><path d="M50 32c8 0 14 6 14 14 0 10-1 20-5 30"/><path d="M50 42c3 0 5 2 5 5 0 12-2 24-6 35"/></svg></button>
+                <div style="font-size:.78rem;color:var(--primary);margin-top:8px;">المس البصمة للتسجيل</div>
+            </div>
+            <button class="login-link" onclick="Auth.showForgotPassword()">نسيت كلمة السر؟</button>
+            <div class="login-divider">أو</div>
+            <div class="google-btn" onclick="Auth.googleSignIn()">
+                <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.9v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.9A9 9 0 0 0 0 9c0 1.45.35 2.83.9 4.03l3.05-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .9 4.97L3.95 7.3C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+                تسجيل الدخول بجوجل
+            </div>
+        </div>
+    </div>
+    <div class="login-box" id="forgot-password-box" style="display:none;">
+        <div class="login-title">نسيت كلمة السر</div>
+        <div class="login-sub">هنبعت طلب لإعادة تعيين كلمة السر لأحمد يسري مباشرة على واتساب</div>
+        <input class="login-input" id="forgot-phone" type="tel" placeholder="رقم هاتفك المسجل" inputmode="numeric">
+        <button class="login-btn" onclick="Auth.sendForgotPasswordRequest()">📨 إرسال طلب إعادة التعيين</button>
+        <button class="login-link" onclick="Auth.hideForgotPassword()">رجوع لتسجيل الدخول</button>
+    </div>
+</div>
+<div class="pending-screen hidden" id="pending-screen">
+    <div class="login-box">
+        <div class="login-badge">⏳</div>
+        <div class="login-title">جاري مراجعة الاشتراك</div>
+        <div class="login-sub" id="pending-name-label" style="margin-bottom:16px;"></div>
+        <div style="font-size:.85rem;color:#dfe3e8;line-height:1.8;margin-bottom:16px;">حسابك لسه مش مفعّل. اشترك بـ 250 جنيه شهريًا فودافون كاش، وابعت إثبات الدفع على واتساب، وهيتم تفعيلك.</div>
+        <button class="login-btn" onclick="Payment.openWhatsApp()">💳 اشترك الآن</button>
+        <button class="login-btn" style="background:#2a2f38;color:#fff;margin-top:10px;" onclick="Auth.logout()">🚪 خروج</button>
+    </div>
+</div>
+<div class="prayer-overlay hidden" id="prayer-overlay">
+    <div class="login-box">
+        <div class="login-badge">🕌</div>
+        <div class="login-title" id="prayer-name-label">حان وقت الصلاة</div>
+        <div style="font-size:.85rem;color:#dfe3e8;line-height:1.8;margin:10px 0 16px;">خد دقايق واصلي، وبعدها اضغط "تم" أو صوّر مكان الصلاة لتأكيد الصلاة والمتابعة.</div>
+        <input type="file" id="prayer-photo-input" accept="image/*" capture="environment" style="display:none" onchange="Prayer.confirmWithPhoto()">
+        <button class="login-btn" onclick="document.getElementById('prayer-photo-input').click()">📷 صوّر مكان الصلاة</button>
+        <button class="login-btn" style="background:#2a2f38;color:#fff;margin-top:10px;" onclick="Prayer.confirmDone()">✅ تم — كملت الصلاة</button>
+    </div>
+</div>
+<div id="ofoq"></div>
+<div id="studio"></div>
+<button id="o-back" onclick="Ofoq.backToPanel()">◀ لوحة التحكم</button>
+<div id="app">
+    <header class="app-header">
+        <div class="title-wrap brand-3d">
+            <span class="super-title">Integrated Education System</span>
+            <h1>📚 Ahmed Yousry Study</h1>
+            <div class="online-badge"><span class="dot"></span> <span id="online-now-count">--</span> يذاكرون الآن</div>
+            <div class="student-badge" id="student-badge" onclick="Auth.logout()">👤 <span id="student-name-label"></span> · خروج</div>
+        </div>
+        <div class="stats-bar">
+            <span class="stat-item fire"><span class="icon">🔥</span> <span id="header-streak">0</span></span>
+            <span class="stat-item gem"><span class="icon">💎</span> <span id="header-xp">0</span></span>
+            <span class="stat-item heart"><span class="icon">❤️</span> <span id="header-hearts">5</span></span>
+        </div>
+    </header>
+
+    <div id="view-home" class="view active">
+        <div class="hero-section">
+            <div id="greeting-banner" class="greeting-banner"></div>
+            <div class="hero-mascot">📖</div>
+            <div class="hero-title">أهلاً بك في Ahmed Yousry Study</div>
+            <div class="hero-subtitle">تعلّم مفرداتك بطريقة ممتعة وتفاعلية</div>
+            <div class="hero-subtitle" style="font-size:0.75rem; opacity:0.7; margin-top:-10px;">Developed by Ahmed Yousry</div>
+            <button class="btn-start" onclick="App.showView('units')">🚀 ابدأ التعلم</button>
+            <div class="quick-grid">
+                <div class="quick-card" onclick="App.showView('units')"><div class="icon">📚</div><div class="label">الوحدات</div></div>
+                <div class="quick-card" onclick="App.showView('dictionary')"><div class="icon">📖</div><div class="label">القاموس</div></div>
+                <div class="quick-card" onclick="App.showView('achievements')"><div class="icon">🏆</div><div class="label">الإنجازات</div></div>
+                <div class="quick-card" onclick="App.showView('books')"><div class="icon">📗</div><div class="label">Bookshop</div></div>
+                <div class="quick-card" onclick="App.showView('aiteacher')"><div class="icon">🤖</div><div class="label">المعلم الذكي</div></div>
+                <div class="quick-card" onclick="App.showView('stories')"><div class="icon">✍️</div><div class="label">قصصي</div></div>
+                <div class="quick-card" onclick="window.open('https://www.facebook.com/egypt.moe/','_blank')"><div class="icon">📰</div><div class="label">أخبار التعليم</div></div>
+                <div class="quick-card" onclick="App.showView('subscribe')"><div class="icon">💳</div><div class="label">الاشتراك</div></div>
+                <div class="quick-card" onclick="App.showView('calendar')"><div class="icon">📅</div><div class="label">جدول المذاكرة</div></div>
+                <div class="quick-card" onclick="App.showView('faith')"><div class="icon">🕌</div><div class="label">الجزء الديني</div></div>
+                <div class="quick-card" onclick="App.showView('quran')"><div class="icon">📖</div><div class="label">القرآن الكريم</div></div>
+                <div class="quick-card" onclick="App.showView('fitness')"><div class="icon">💪</div><div class="label">التمارين</div></div>
+                <div class="quick-card" onclick="App.showView('stats')"><div class="icon">📊</div><div class="label">إحصائياتي</div></div>
+                <div class="quick-card" onclick="App.showView('games')"><div class="icon">🎮</div><div class="label">قسم اللعب</div></div>
+                <div class="quick-card" onclick="App.showView('coding')"><div class="icon">💻</div><div class="label">تعلّم البرمجة</div></div>
+                <div class="quick-card" onclick="App.showView('office')"><div class="icon">🖥️</div><div class="label">Word & Excel</div></div>
+                <div class="quick-card" onclick="App.showView('worksheet')"><div class="icon">📄</div><div class="label">الورقة الشاملة</div></div>
+                <div class="quick-card" onclick="App.showView('pomodoro')"><div class="icon">⏱️</div><div class="label">مؤقت المذاكرة</div></div>
+                <div class="quick-card" onclick="App.showView('flashcards')"><div class="icon">🗂️</div><div class="label">بطاقات مراجعة</div></div>
+                <div class="quick-card" onclick="App.showView('notes')"><div class="icon">📝</div><div class="label">دفتر ملاحظات</div></div>
+                <div class="quick-card" onclick="App.showView('homework')"><div class="icon">📋</div><div class="label">الواجبات</div></div>
+                <div class="quick-card" onclick="App.showView('formulas')"><div class="icon">📐</div><div class="label">مرجع القوانين</div></div>
+                <div class="quick-card" onclick="App.showView('bac')"><div class="icon">🎓</div><div class="label">دليل الباكالوريا</div></div>
+                <div class="quick-card" onclick="App.showView('contest')"><div class="icon">🏆</div><div class="label">روايات بفلوس</div></div>
+                <div class="quick-card" onclick="App.showView('whiteboard')"><div class="icon">📝</div><div class="label">السبورة الذكية</div></div>
+                <div class="quick-card" onclick="Studio.open('lib')"><div class="icon">📚</div><div class="label">المكتبة الرقمية</div></div>
+                <div class="quick-card" onclick="App.showView('liveclass')"><div class="icon">🎥</div><div class="label">البث المباشر</div></div>
+                <div class="quick-card" onclick="App.showView('ytteachers')"><div class="icon">🎥</div><div class="label">مدرسين اليوتيوب</div></div>
+                <div class="quick-card" onclick="App.showView('teachers')"><div class="icon">🏅</div><div class="label">نخبة المدرسين</div></div>
+                <div class="quick-card" onclick="App.showView('leaderboard')"><div class="icon">📊</div><div class="label">المتصدرون</div></div>
+                <div class="quick-card" id="admin-card" style="display:none;" onclick="App.showView('admin')"><div class="icon">🛠️</div><div class="label">تفعيل الطلاب</div></div>
+                <div class="quick-card" id="teacher-panel-card" style="display:none;" onclick="App.showView('teacherpanel')"><div class="icon">🎓</div><div class="label">لوحة المدرس</div></div>
+            </div>
+            <div style="margin-top:16px;font-size:.8rem;color:var(--text-light);">
+                <span id="stat-words">0</span> كلمة محفوظة · <span id="stat-levels">0</span> مرحلة مكتملة · <span id="stat-accuracy">0%</span> دقة
+            </div>
+            <div id="sub-days-remaining" style="margin-top:8px;font-size:.82rem;font-weight:700;color:var(--primary);"></div>
+            <button class="btn btn-secondary" style="margin-top:10px;" onclick="Auth.reportProblem()">📩 ابعت مشكلة للأدمن</button>
+            <div class="support-card">
+                <div class="support-title">🛠️ الدعم الفني</div>
+                <div class="support-row">أحمد يسري عثمان عثمان مصطفى</div>
+                <div class="support-row">📞 <a href="https://wa.me/201018562369" target="_blank" rel="noopener">تواصل واتساب: 01018562369</a></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-units" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:16px;">📚 الوحدات</h2>
+        <div id="units-container" class="units-list"></div>
+    </div>
+
+    <div id="view-levels" class="view">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <button onclick="App.showView('units')" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">←</button>
+            <h2 id="levels-title" style="font-size:1.1rem;font-weight:800;">المراحل</h2>
+        </div>
+        <div id="levels-container" class="levels-path-container"></div>
+    </div>
+
+    <div id="view-modes" class="view">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <button onclick="App.showLevels(App.currentUnit)" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">←</button>
+            <h2 id="modes-title" style="font-size:1.1rem;font-weight:800;">اختر نمط اللعب</h2>
+        </div>
+        <div class="modes-grid" id="modes-container"></div>
+    </div>
+
+    <div id="view-game" class="view">
+        <div class="game-top-bar">
+            <button class="quit-btn" onclick="App.quitGame()">✕</button>
+            <div class="game-progress"><div class="game-progress-fill" id="game-progress-fill" style="width:0%"></div></div>
+            <span class="hearts-display" id="game-hearts">❤️ 5</span>
+        </div>
+        <div id="game-content"></div>
+        <div id="game-feedback" class="feedback-box"></div>
+    </div>
+
+    <div id="view-results" class="view">
+        <div style="text-align:center;padding:16px 0;">
+            <h2 style="font-size:1.3rem;font-weight:800;">🎉 انتهيت!</h2>
+            <div class="result-circle" id="result-circle"><div class="result-text" id="result-percent">0%</div></div>
+            <div class="stars-display" id="result-stars">⭐⭐⭐</div>
+            <div class="stats-row">
+                <div class="stat-box"><div class="number green" id="result-correct">0</div><div class="label">صحيح</div></div>
+                <div class="stat-box"><div class="number red" id="result-wrong">0</div><div class="label">خطأ</div></div>
+                <div class="stat-box"><div class="number yellow" id="result-xp">0</div><div class="label">نقاط</div></div>
+            </div>
+            <button class="btn btn-primary" onclick="App.afterResults()">🔄 مواصلة</button>
+        </div>
+    </div>
+
+    <div id="view-dictionary" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">📖 القاموس الشامل</h2>
+        <input class="dict-search" id="dict-search" placeholder="🔍 ابحث عن كلمة..." oninput="Dictionary.filter()">
+        <div class="dict-table-wrap">
+            <table class="dict-table" id="dict-table">
+                <thead><tr><th>الكلمة</th><th>المعنى</th></tr></thead>
+                <tbody id="dict-body"></tbody>
+            </table>
+        </div>
+        <div style="margin-top:16px;">
+            <div class="import-zone" onclick="document.getElementById('ocr-input').click()">
+                <span class="icon">📤</span>
+                <div><strong>رفع صورة لاستخراج الكلمات</strong></div>
+                <div style="font-size:.8rem;color:var(--text-light);">(OCR - ستعالج الصورة وتضيف الكلمات)</div>
+            </div>
+            <input type="file" id="ocr-input" accept="image/*" style="display:none" onchange="App.handleOCR(event)">
+        </div>
+    </div>
+
+    <div id="view-books" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">📗 Bookshop Ahmed Yousry</h2>
+        <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;">من الصف الأول الإعدادي حتى الصف الثالث الثانوي</div>
+        <input class="books-search" id="books-search" placeholder="🔍 Search for a stage or subject..." oninput="Books.filter()">
+        <div id="books-container"></div>
+        <div style="font-size:.72rem;color:var(--text-light);margin-top:8px;line-height:1.7;">
+            📥 لعرض الكتاب كاملًا كملف PDF رسمي، استخدم زرار "Official Ministry Books" أعلى كل مرحلة.
+        </div>
+    </div>
+
+    <div id="view-aiteacher" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">🤖 المعلم الذكي (AI Teacher)</h2>
+        <div style="font-size:.78rem;color:var(--text-light);margin-bottom:14px;line-height:1.7;">صوّر صفحة من كتابك أو كتاب المدرس وارفعها هنا، وهيتم استخراج النص منها وقراءته لك بصوت عالٍ تلقائيًا.</div>
+        <div class="import-zone" onclick="document.getElementById('ai-ocr-input').click()">
+            <span class="icon">📷</span>
+            <div><strong>ارفع صورة الصفحة</strong></div>
+            <div style="font-size:.8rem;color:var(--text-light);">سيتم استخراج النص تلقائيًا (OCR)</div>
+        </div>
+        <input type="file" id="ai-ocr-input" accept="image/*" style="display:none" onchange="AITeacher.handleImage(event)">
+        <div id="ai-ocr-status" style="text-align:center;font-size:.85rem;color:var(--text-light);margin-top:10px;"></div>
+        <div class="ocr-result-box" id="ai-ocr-result" style="display:none;"></div>
+        <div class="ocr-actions" id="ai-ocr-actions" style="display:none;">
+            <button class="btn btn-secondary" onclick="AITeacher.readAloud()">🔊 اقرأ بصوت عالٍ</button>
+            <button class="btn btn-light" onclick="AITeacher.stopReading()">⏹️ إيقاف</button>
+        </div>
+        <input class="books-search" id="ai-ocr-search" style="display:none;margin-top:14px;" placeholder="🔍 ابحث عن كلمة داخل النص..." oninput="AITeacher.searchInText()">
+
+        <div style="margin-top:24px;">
+            <div style="font-weight:800;font-size:.95rem;margin-bottom:8px;">💬 اسأل المعلم الذكي عن النص</div>
+            <input class="books-search" id="ai-ask-input" placeholder="اكتب سؤالك عن الصفحة اللي رفعتها...">
+            <button class="btn btn-primary" onclick="AITeacher.ask()">📨 إرسال السؤال</button>
+            <div class="ocr-result-box" id="ai-ask-result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div id="view-stories" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">✍️ قصصي ورواياتي</h2>
+        <div class="story-form">
+            <input type="text" id="story-author" placeholder="اسمك">
+            <input type="text" id="story-title" placeholder="عنوان القصة أو الرواية">
+            <textarea id="story-body" placeholder="اكتب قصتك أو روايتك هنا..."></textarea>
+            <button class="btn btn-primary" onclick="Stories.publish()">🚀 نشر القصة</button>
+        </div>
+        <div id="stories-container" style="margin-top:20px;"></div>
+
+    </div>
+
+    <div id="view-subscribe" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">💳 الاشتراك الشهري</h2>
+        <div class="pay-card">
+            <div class="amount">250 جنيه</div>
+            <div class="method">شهريًا عبر فودافون كاش</div>
+            <div class="vf-number">01018562369</div>
+        </div>
+        <input class="books-search" id="pay-name" placeholder="اسمك بالكامل">
+        <input class="books-search" id="pay-phone" placeholder="رقم هاتفك">
+        <input class="books-search" id="pay-month" placeholder="شهر الاشتراك (مثال: أغسطس 2026)">
+        <div class="import-zone" onclick="document.getElementById('pay-screenshot').click()">
+            <span class="icon">📸</span>
+            <div><strong>ارفع صورة إثبات التحويل</strong></div>
+        </div>
+        <input type="file" id="pay-screenshot" accept="image/*" style="display:none" onchange="Payment.previewShot(event)">
+        <img id="pay-preview" class="file-preview">
+        <button class="btn btn-primary" style="margin-top:14px;" onclick="Payment.confirm()">✅ تأكيد الدفع عبر واتساب</button>
+        <div style="font-size:.72rem;color:var(--text-light);margin-top:10px;">بعد الضغط، هتتفتح محادثة واتساب ببياناتك جاهزة — أرفق صورة إثبات التحويل يدويًا داخل نفس المحادثة، وهيتم تفعيل حسابك بعد المراجعة.</div>
+    </div>
+
+    <div id="view-calendar" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">📅 جدول المذاكرة الشهري</h2>
+        <div id="cal-title" style="font-size:.85rem;color:var(--text-light);margin-bottom:6px;"></div>
+        <div id="cal-motivation" style="font-size:.9rem;font-weight:700;color:var(--primary);"></div>
+        <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div id="view-faith" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">🕌 الجزء الديني</h2>
+        <div class="faith-choice">
+            <button class="btn btn-secondary" onclick="Faith.show('muslim')">☪️ مسلم</button>
+            <button class="btn btn-secondary" onclick="Faith.show('christian')">✝️ مسيحي</button>
+        </div>
+        <div id="faith-content"></div>
+    </div>
+
+    <div id="view-quran" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">📖 القرآن الكريم</h2>
+        <select class="books-search" id="quran-surah-select"></select>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button class="wb-btn reciter-btn active-reciter" id="reciter-minshawi" onclick="Quran.setReciter('minshawi')">المنشاوي</button>
+            <button class="wb-btn reciter-btn" id="reciter-abdulbasit" onclick="Quran.setReciter('abdulbasit')">عبد الباسط</button>
+            <button class="wb-btn reciter-btn" id="reciter-dosari" onclick="Quran.setReciter('dosari')">الدوسري</button>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" style="flex:1;" onclick="Quran.play()">▶️ استماع</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="Quran.loadText()">📄 عرض النص</button>
+        </div>
+        <audio id="quran-audio" controls style="width:100%;margin-top:12px;"></audio>
+        <div class="ocr-result-box" id="quran-text-box" style="display:none;font-size:1.1rem;line-height:2.4;text-align:center;"></div>
+    </div>
+
+    <div id="view-fitness" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">💪 النظام اليومي (مذاكرة + رياضة + أكل + نوم)</h2>
+        <div id="fitness-quiz">
+            <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;">جاوب على الأسئلة دي عشان نظبطلك جدول يناسبك انت شخصيًا (مش نفس الجدول لكل الطلاب)</div>
+            <input class="books-search" id="fq-wake" placeholder="امتى بتصحى؟ (مثال: 6:30 ص)">
+            <input class="books-search" id="fq-sleep" placeholder="امتى بتنام؟ (مثال: 11:00 م)">
+            <select class="books-search" id="fq-place">
+                <option value="gym">هتتمرن في الجيم</option>
+                <option value="home">هتتمرن في البيت</option>
+            </select>
+            <select class="books-search" id="fq-goal">
+                <option value="strength">هدفك: زيادة قوة وعضل</option>
+                <option value="fatloss">هدفك: تنشيف ودهون أقل</option>
+                <option value="general">هدفك: لياقة عامة</option>
+            </select>
+            <select class="books-search" id="fq-level">
+                <option value="beginner">مبتدئ</option>
+                <option value="intermediate">متوسط</option>
+                <option value="advanced">متقدم</option>
+            </select>
+            <button class="btn btn-primary" onclick="Fitness.generate()">⚙️ اعمل الجدول بتاعي</button>
+        </div>
+        <div id="fitness-result" style="display:none;">
+            <div class="plan-section">
+                <h3>⏰ جدول اليوم</h3>
+                <div id="fitness-schedule"></div>
+            </div>
+            <div class="plan-section">
+                <h3>🏋️ تمارين اليوم (<span id="fitness-ex-count"></span> تمرين)</h3>
+                <div id="fitness-exercises"></div>
+            </div>
+            <div class="plan-section">
+                <h3>🍽️ نظام الأكل (بميزانية ~80 جنيه/يوم)</h3>
+                <div id="fitness-meals"></div>
+            </div>
+            <button class="btn btn-secondary" onclick="Fitness.reset()">🔄 غيّر الإجابات</button>
+        </div>
+    </div>
+
+    <div id="view-stats" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">📊 إحصائياتي</h2>
+        <div class="stats-grid" id="stats-container"></div>
+    </div>
+
+    <div id="view-games" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">🎮 قسم اللعب</h2>
+        <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;">العب إكس أو مع أي حد على نفس الجهاز — أختك، أمك، أو صحابك 😄</div>
+        <div id="xo-status" style="text-align:center;font-weight:800;color:var(--primary);margin-bottom:10px;">دور: X</div>
+        <div class="xo-board" id="xo-board"></div>
+        <button class="btn btn-secondary" style="margin-top:14px;" onclick="Games.reset()">🔄 لعبة جديدة</button>
+        <div style="margin-top:14px;font-size:.85rem;color:var(--text-light);text-align:center;">🏆 X: <span id="xo-score-x">0</span> · O: <span id="xo-score-o">0</span> · تعادل: <span id="xo-score-d">0</span></div>
+    </div>
+
+    <div id="view-coding" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">💻 أكاديمية البرمجة</h2>
+        <div class="coding-tabs">
+            <div class="coding-tab active" data-tab="ct-test" onclick="Coding.showTab('ct-test')">📝 تحديد المستوى</div>
+            <div class="coding-tab" data-tab="ct-lessons" onclick="Coding.showTab('ct-lessons')">📚 الدروس</div>
+            <div class="coding-tab" data-tab="ct-roadmap" onclick="Coding.showTab('ct-roadmap')">🗺️ خريطة التعلّم</div>
+            <div class="coding-tab" data-tab="ct-editor" onclick="Coding.showTab('ct-editor')">⌨️ محرر الأكواد</div>
+            <div class="coding-tab" data-tab="ct-exam" onclick="Coding.showTab('ct-exam')">🏆 الاختبار والشهادة</div>
+            <div class="coding-tab" data-tab="ct-news" onclick="Coding.showTab('ct-news')">📰 أخبار البرمجة</div>
+        </div>
+
+        <div id="ct-test" class="coding-panel">
+            <div id="placement-quiz"></div>
+            <div id="placement-result" style="display:none;text-align:center;padding:20px;"></div>
+        </div>
+
+        <div id="ct-roadmap" class="coding-panel" style="display:none;">
+            <div style="font-size:.78rem;color:var(--text-light);margin-bottom:12px;">من الصفر إلى مبرمج Full-Stack محترف — قدّامك المسار كامل:</div>
+            <div class="code-roadmap" id="roadmap-list"></div>
+        </div>
+
+        <div id="ct-editor" class="coding-panel" style="display:none;">
+            <select class="books-search" id="code-exercise-select" onchange="Coding.loadExercise()"></select>
+            <div id="code-exercise-desc" style="font-size:.82rem;color:var(--text-light);margin-bottom:10px;"></div>
+            <div class="code-editor-wrap">
+                <textarea id="code-editor-html" placeholder="HTML"></textarea>
+                <textarea id="code-editor-css" placeholder="CSS" style="min-height:80px;"></textarea>
+                <textarea id="code-editor-js" placeholder="JavaScript" style="min-height:100px;"></textarea>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-primary" style="flex:1;" onclick="Coding.run()">▶️ تشغيل</button>
+                    <button class="btn btn-secondary" style="flex:1;" onclick="Coding.check()">✅ تحقّق من الحل</button>
+                </div>
+                <iframe class="code-preview-frame" id="code-preview"></iframe>
+                <div id="code-check-result"></div>
+            </div>
+        </div>
+
+        <div id="ct-lessons" class="coding-panel" style="display:none;">
+            <div id="lessons-menu"></div>
+            <div id="lesson-viewer"></div>
+        </div>
+
+        <div id="ct-exam" class="coding-panel" style="display:none;">
+            <div id="exam-intro"></div>
+        </div>
+
+        <div id="ct-news" class="coding-panel" style="display:none;">
+            <div style="font-size:.78rem;color:var(--text-light);margin-bottom:12px;">أشهر المواقع اللي المبرمجين المتصدرين بيتابعوا فيها آخر أخبار وترندات البرمجة يوميًا:</div>
+            <div id="news-links-container"></div>
+        </div>
+
+        <div style="font-size:.7rem;color:var(--text-light);margin-top:16px;line-height:1.7;">تمارين HTML/CSS/JavaScript بتشتغل وتتفحص فعليًا داخل المتصفح. أما موضوعات الـ Backend وقواعد البيانات فهي جزء نظري من خريطة التعلّم (مش كود شغال داخل المتصفح، لأنه محتاج سيرفر حقيقي).</div>
+    </div>
+
+    <div id="view-office" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">🖥️ برامج المكتب (Word - Excel - Photoshop)</h2>
+        <div class="coding-tabs">
+            <div class="coding-tab active" data-tab="ot-lessons" onclick="OfficeAcademy.showTab('ot-lessons')">📚 الدروس</div>
+            <div class="coding-tab" data-tab="ot-exam" onclick="OfficeAcademy.showTab('ot-exam')">🏆 الاختبار والشهادة</div>
+        </div>
+        <div id="ot-lessons" class="coding-panel">
+            <div id="office-lessons-menu"></div>
+            <div id="office-lesson-viewer"></div>
+        </div>
+        <div id="ot-exam" class="coding-panel" style="display:none;">
+            <div id="office-exam-intro"></div>
+        </div>
+    </div>
+
+    <div id="view-worksheet" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">📄 الورقة الشاملة (مراجعة كل الدروس)</h2>
+        <div id="worksheet-locked" style="text-align:center;padding:30px;">
+            <div style="font-size:2.5rem;">🔒</div>
+            <div style="font-weight:800;margin-top:8px;">الورقة دي مش متاحة لحسابك</div>
+            <div style="color:var(--text-light);font-size:.85rem;margin:8px 0 16px;">اشتراك الورقة الشاملة بـ50 جنيه — تواصل عشان تفعّلها</div>
+            <button class="btn btn-primary" onclick="window.open('https://wa.me/201018562369?text=' + encodeURIComponent('عايز أشترك في الورقة الشاملة بـ50 جنيه'), '_blank')">💳 اشترك عبر واتساب</button>
+        </div>
+        <div id="worksheet-content" style="display:none;"></div>
+    </div>
+
+    <div id="view-pomodoro" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">⏱️ مؤقت المذاكرة (Pomodoro)</h2>
+        <div style="font-size:.8rem;color:var(--text-light);margin-bottom:10px;">25 دقيقة مذاكرة، 5 دقايق راحة — طريقة مثبتة تساعدك تركّز أكتر</div>
+        <div class="pomo-circle" id="pomo-circle">
+            <div class="pomo-time" id="pomo-time">25:00</div>
+        </div>
+        <div style="text-align:center;font-size:.85rem;color:var(--text-light);" id="pomo-label">جلسة مذاكرة</div>
+        <div class="pomo-controls">
+            <button class="btn btn-primary" id="pomo-start-btn" onclick="Pomodoro.toggle()">▶️ ابدأ</button>
+            <button class="btn btn-secondary" onclick="Pomodoro.reset()">🔄 إعادة</button>
+        </div>
+        <div style="text-align:center;margin-top:16px;font-size:.85rem;color:var(--text-light);">🍅 عدد الجلسات اليوم: <span id="pomo-count">0</span></div>
+    </div>
+
+    <div id="view-flashcards" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">🗂️ بطاقات المراجعة</h2>
+        <div class="story-form">
+            <input type="text" id="flash-subject" placeholder="المادة (مثال: كيمياء)">
+            <input type="text" id="flash-q" placeholder="السؤال / المصطلح">
+            <input type="text" id="flash-a" placeholder="الإجابة / التعريف">
+            <button class="btn btn-primary" onclick="Flashcards.add()">➕ إضافة بطاقة</button>
+        </div>
+        <select class="books-search" id="flash-subject-filter" onchange="Flashcards.render()" style="margin-top:14px;">
+            <option value="">كل المواد</option>
+        </select>
+        <div id="flash-viewer"></div>
+    </div>
+
+    <div id="view-notes" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">📝 دفتر الملاحظات</h2>
+        <div class="story-form">
+            <input type="text" id="note-subject" placeholder="المادة">
+            <textarea id="note-text" placeholder="اكتب ملاحظتك هنا..."></textarea>
+            <button class="btn btn-primary" onclick="Notes.add()">💾 حفظ الملاحظة</button>
+        </div>
+        <div id="notes-container" style="margin-top:16px;"></div>
+    </div>
+
+    <div id="view-homework" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">📋 متابعة الواجبات</h2>
+        <div class="story-form">
+            <input type="text" id="hw-title" placeholder="اسم الواجب">
+            <input type="date" id="hw-due">
+            <button class="btn btn-primary" onclick="Homework.add()">➕ إضافة واجب</button>
+        </div>
+        <div id="hw-container" style="margin-top:16px;"></div>
+    </div>
+
+    <div id="view-formulas" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">📐 مرجع القوانين (رياضة وفيزياء)</h2>
+        <input class="books-search" id="formula-search" placeholder="🔍 ابحث عن قانون..." oninput="Formulas.render()">
+        <div id="formulas-container"></div>
+    </div>
+
+    <div id="view-bac" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">🎓 دليل مراجعة الثانية باكالوريا</h2>
+        <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;line-height:1.7;">اختر شعبتك عشان تشوف المواد الأساسية ونصايح مراجعة + روابط مباشرة لمواقع رسمية فيها كل الامتحانات الوطنية السابقة مصححة لكل مادة.</div>
+        <select class="books-search" id="bac-track-select" onchange="BacGuide.render()"></select>
+        <div id="bac-content"></div>
+    </div>
+
+    <div id="view-contest" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">🏆 قسم الروايات للفلوس</h2>
+        <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;line-height:1.7;">أكتر رواية بتجمع إعجابات شهريًا أو أسبوعيًا بتاخد جائزة مالية تتحول فودافون كاش. انشر روايتك من قسم "قصصي" وشارك اللينك مع أصحابك يعملوا إعجاب.</div>
+        <div id="contest-leaderboard"></div>
+        <div style="margin-top:24px;">
+            <div style="font-weight:800;font-size:.95rem;margin-bottom:8px;">🎁 استلام الجائزة</div>
+            <input class="books-search" id="claim-name" placeholder="اسمك بالكامل">
+            <input class="books-search" id="claim-age" placeholder="سنك">
+            <input class="books-search" id="claim-grade" placeholder="الصف الدراسي">
+            <input class="books-search" id="claim-story" placeholder="عنوان روايتك الفائزة">
+            <button class="btn btn-primary" onclick="Contest.claimPrize()">📨 إرسال طلب الاستلام عبر واتساب</button>
+        </div>
+    </div>
+
+    <div id="view-admin" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">🛠️ تفعيل الطلاب</h2>
+        <div id="admin-summary" style="font-size:.85rem;color:var(--primary);font-weight:700;margin-bottom:8px;"></div>
+        <input class="books-search" id="admin-search" placeholder="🔍 ابحث بالاسم أو الرقم..." oninput="Admin.render()">
+        <div id="admin-reports" style="margin:10px 0;"></div>
+        <div id="admin-users-list"></div>
+    </div>
+
+    <div id="view-whiteboard" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">📝 السبورة الذكية</h2>
+        <div class="wb-toolbar">
+            <span class="wb-color active" style="background:#000" data-color="#000000" onclick="Whiteboard.setColor(this,'#000000')"></span>
+            <span class="wb-color" style="background:#e5484d" data-color="#e5484d" onclick="Whiteboard.setColor(this,'#e5484d')"></span>
+            <span class="wb-color" style="background:#2b7de9" data-color="#2b7de9" onclick="Whiteboard.setColor(this,'#2b7de9')"></span>
+            <span class="wb-color" style="background:#2ecc71" data-color="#2ecc71" onclick="Whiteboard.setColor(this,'#2ecc71')"></span>
+            <span class="wb-color" style="background:#d4af37" data-color="#d4af37" onclick="Whiteboard.setColor(this,'#d4af37')"></span>
+            <button class="wb-btn" onclick="Whiteboard.setEraser()">🧹 ممحاة</button>
+            <button class="wb-btn" onclick="Whiteboard.clearAll()">🗑️ مسح الكل</button>
+            <button class="wb-btn" onclick="Whiteboard.undo()">⏪ تراجع</button>
+            <button class="wb-btn" onclick="Whiteboard.redo()">⏩ تقدم</button>
+            <button class="wb-btn" onclick="Whiteboard.fullscreen()">⛶ ملء الشاشة</button>
+            <button class="wb-btn" onclick="Calculator.open()">🧮 الآلة الحاسبة</button>
+        </div>
+        <canvas id="wb-canvas"></canvas>
+        <div class="wb-timeline" id="wb-timeline"></div>
+        <div class="wb-toolbar" style="margin-top:10px;">
+            <button class="wb-btn" onclick="Whiteboard.savePNG()">💾 حفظ كصورة PNG</button>
+            <button class="wb-btn" onclick="Whiteboard.saveJSON()">📦 تحميل JSON</button>
+            <button class="wb-btn" onclick="Whiteboard.replay()">▶️ تشغيل تلقائي</button>
+        </div>
+        <div id="wb-teacher-tools" style="display:none;margin-top:10px;">
+            <button class="wb-btn" onclick="Whiteboard.toggleShowCalcToStudents()" id="wb-show-calc-btn">📤 عرض الآلة للطلاب</button>
+        </div>
+    </div>
+
+    <div class="calc-modal" id="calc-modal">
+        <div class="calc-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <strong style="color:var(--primary);">🧮 آلة حاسبة علمية</strong>
+                <span style="cursor:pointer;color:#fff;" onclick="Calculator.close()">✖</span>
+            </div>
+            <div class="calc-screen" id="calc-screen">0</div>
+            <div class="calc-grid" id="calc-keys"></div>
+        </div>
+    </div>
+
+    <div id="view-liveclass" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:4px;">🎥 البث المباشر</h2>
+        <div style="margin-bottom:12px;"><span class="participant-counter">👥 <span id="live-count">0</span> / 50</span></div>
+        <div id="live-teacher-controls" style="display:none;margin-bottom:14px;">
+            <button class="wb-btn" onclick="Live.startBroadcast()">▶️ بدء البث</button>
+            <div id="live-room-code" style="margin-top:8px;font-weight:800;color:var(--primary);"></div>
+        </div>
+        <div id="live-student-join" style="margin-bottom:14px;">
+            <input class="books-search" id="live-room-input" placeholder="أدخل كود الغرفة">
+            <button class="btn btn-primary" onclick="Live.joinRoom()">🔗 دخول البث</button>
+        </div>
+        <canvas id="live-canvas" style="width:100%;height:220px;background:#fff;border-radius:12px;border:2px solid var(--border);display:none;"></canvas>
+        <div class="live-chat-box" id="live-chat"></div>
+        <div style="display:flex;gap:8px;">
+            <input class="books-search" id="live-chat-input" style="margin-bottom:0;" placeholder="اكتب رسالة...">
+            <button class="btn btn-secondary" style="margin-top:0;" onclick="Live.sendChat()">إرسال</button>
+        </div>
+    </div>
+
+    <div id="view-ytteachers" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:10px;">🎥 مدرسين اليوتيوب</h2>
+        <div id="yt-grades" style="margin-bottom:8px;"></div>
+        <div id="yt-list"></div>
+    </div>
+
+    <div id="view-teachers" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">🏅 نخبة المدرسين</h2>
+        <div class="teacher-grid" id="teachers-grid"></div>
+    </div>
+
+    <div id="view-teacherpanel" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">🎓 لوحة تحكم المدرس</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="ctrl-btn" onclick="App.showView('liveclass')"><span class="icon">🎥</span>بدء البث</div>
+            <div class="ctrl-btn" onclick="Calculator.open()"><span class="icon">🧮</span>فتح الآلة الحاسبة</div>
+            <div class="ctrl-btn" onclick="App.showView('whiteboard')"><span class="icon">📝</span>السبورة الذكية</div>
+            <div class="ctrl-btn" onclick="Whiteboard.showHistoryPanel()"><span class="icon">📜</span>سجل الشرح</div>
+        </div>
+    </div>
+
+    <div id="view-leaderboard" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">📊 لوحة المتصدرين</h2>
+        <div id="lb-container"></div>
+    </div>
+
+    <div id="view-achievements" class="view">
+        <h2 style="font-size:1.2rem;font-weight:800;margin-bottom:12px;">🏆 الإنجازات</h2>
+        <div id="ach-container" class="ach-grid"></div>
+    </div>
+
+
+    <div class="modal-overlay" id="modal-level">
+        <div class="modal-box">
+            <h2 id="modal-title">🎯 أحسنت!</h2>
+            <p id="modal-desc">لقد أكملت هذه المرحلة بنجاح.</p>
+            <button class="btn btn-primary" onclick="App.closeModal()">👍 ممتاز</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="App.showView('home')"><span class="nav-icon">🏠</span> الرئيسية</div>
+        <div class="nav-item" onclick="App.showView('units')"><span class="nav-icon">📚</span> الوحدات</div>
+        <div class="nav-item" onclick="App.showView('books')"><span class="nav-icon">📗</span> Bookshop</div>
+        <div class="nav-item" onclick="App.showView('dictionary')"><span class="nav-icon">📖</span> القاموس</div>
+        <div class="nav-item" onclick="App.showView('achievements')"><span class="nav-icon">🏆</span> الإنجازات</div>
+    </nav>
+</div>
+
+<!-- 🖐️ تسجيل البصمة ← الكاميرا ← فورم البيانات -->
+<div id="bio-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;padding:16px;">
+  <div style="background:#15181d;border:1px solid var(--primary);border-radius:16px;padding:18px;width:100%;max-width:380px;color:#fff;text-align:center;">
+    <div id="bio-step-scan">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:6px;">🔐 التحقق بالبصمة</div>
+      <div class="fp-big"><svg viewBox="0 0 100 100" width="110" height="110" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M50 12c-20 0-34 15-34 34v8"/><path d="M50 22c-14 0-24 11-24 24 0 10-2 18-6 26"/><path d="M50 32c-8 0-14 6-14 14 0 14-3 26-9 38"/><path d="M50 42c-3 0-5 2-5 5 0 16-3 30-10 42"/><path d="M50 12c20 0 34 15 34 34 0 8-1 14-3 20"/><path d="M50 22c14 0 24 11 24 24 0 8-1 16-4 24"/><path d="M50 32c8 0 14 6 14 14 0 10-1 20-5 30"/><path d="M50 42c3 0 5 2 5 5 0 12-2 24-6 35"/></svg></div>
+      <div style="font-size:.8rem;margin-top:8px;">ضع إصبعك على مستشعر البصمة في جهازك</div>
+    </div>
+    <div id="bio-step-cam" style="display:none;">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">📷 صوّر وجهك</div>
+      <video id="bio-video" autoplay playsinline muted style="width:100%;border-radius:12px;background:#000;transform:scaleX(-1);"></video>
+      <button class="login-btn" style="margin-top:10px;" onclick="BioFlow.snap()">التقط الصورة</button>
+    </div>
+    <div id="bio-step-form" style="display:none;">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">📝 بيانات المستخدم</div>
+      <img id="bio-photo" alt="" style="width:110px;height:110px;border-radius:50%;object-fit:cover;border:2px solid var(--primary);margin-bottom:10px;">
+      <input id="bio-name" class="books-search" placeholder="الاسم">
+      <input id="bio-detail" class="books-search" placeholder="بيانات إضافية (مثال: الصف / الوظيفة)" style="margin-top:8px;">
+      <input id="bio-code" class="books-search" placeholder="الكود" style="margin-top:8px;">
+      <button class="login-btn" style="margin-top:10px;" onclick="BioFlow.save()">حفظ</button>
+    </div>
+    <div id="bio-msg" style="font-size:.8rem;margin-top:10px;color:#dfe3e8;"></div>
+    <button onclick="BioFlow.close()" style="margin-top:10px;background:none;border:none;color:#9aa3ad;cursor:pointer;">إغلاق</button>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/core.js"></script>
+<script src="js/users.js"></script>
+<script src="js/biometric.js"></script>
+<script src="js/ofoq.js"></script>
+<script src="js/studio.js"></script>
+<script src="js/library.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/faith.js"></script>
+<script src="js/fitness.js"></script>
+<script src="js/games.js"></script>
+<script src="js/learning.js"></script>
+<script src="js/tools.js"></script>
+<script src="js/teachers.js"></script>
+<script src="js/social.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
